@@ -1,25 +1,18 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <stddef.h>
-
 #define SIZE 8        
-#define MOVE_COUNT 8  
-const int MOVES_X[MOVE_COUNT] = { 2, 1, -1, -2, -2, -1, 1, 2 };
-const int MOVES_Y[MOVE_COUNT] = { 1, 2,  2,  1, -1, -2, -2, -1 };
-typedef unsigned int board_t[SIZE][SIZE];
+#define MOVE_COUNT 8
 
-bool move_is_possible(size_t move_id, int x, int y, board_t visited);
+const int MOVES_X[MOVE_COUNT] = {2, 1, -1, -2, -2, -1, 1, 2};
+const int MOVES_Y[MOVE_COUNT] = {1, 2, 2, 1, -1, -2, -2, -1};
 
-unsigned int tour_greedy(size_t start_x, size_t start_y);
+typedef int board_t[SIZE][SIZE];
 
-void greedy_tour_from_each_square(void);
-
-bool move_is_possible(size_t move_id, int x, int y, board_t visited)
-{
+bool move_is_possible(size_t move_id, size_t x, size_t y, board_t visited) {
     int new_x = x + MOVES_X[move_id];
     int new_y = y + MOVES_Y[move_id];
 
-    if (new_x < 0 || new_y < 0 || new_x >= SIZE || new_y >= SIZE)
+    if (new_x < 0 || new_x >= SIZE || new_y < 0 || new_y >= SIZE)
         return false;
 
     if (visited[new_y][new_x] != 0)
@@ -28,54 +21,49 @@ bool move_is_possible(size_t move_id, int x, int y, board_t visited)
     return true;
 }
 
-unsigned int tour_greedy(size_t start_x, size_t start_y)
-{
-    board_t visited = {0};  
-    int x = start_x;
-    int y = start_y;
-    unsigned int steps = 1;
+unsigned int tour_greedy(size_t start_x, size_t start_y) {
+    board_t visited = {0};
+    size_t x = start_x;
+    size_t y = start_y;
+    unsigned int move_count = 1;
 
-    visited[y][x] = steps;
+    visited[y][x] = move_count; 
 
-    bool moved;
-    do {
-        moved = false;
-        for (size_t move = 0; move < MOVE_COUNT; move++) {
-            if (move_is_possible(move, x, y, visited)) {
-                x += MOVES_X[move];
-                y += MOVES_Y[move];
-                steps++;
-                visited[y][x] = steps;
-                moved = true;
-                break;  
+    bool move_found = true;
+    while (move_found) {
+        move_found = false;
+        for (size_t move_id = 0; move_id < MOVE_COUNT; move_id++) {
+            if (move_is_possible(move_id, x, y, visited)) {
+                x += MOVES_X[move_id];
+                y += MOVES_Y[move_id];
+                visited[y][x] = ++move_count;
+                move_found = true;
+                break; 
             }
-        }
-    } while (moved);
-
-    return steps;
-}
-
-void greedy_tour_from_each_square(void)
-{
-    board_t results = {0};
-
-    for (size_t y = 0; y < SIZE; y++) {
-        for (size_t x = 0; x < SIZE; x++) {
-            results[y][x] = tour_greedy(x, y);
         }
     }
 
-    printf("Greedy:\n");
-    for (size_t y = 0; y < SIZE; y++) {
-        for (size_t x = 0; x < SIZE; x++) {
-            printf("%3u ", results[y][x]);
+    printf("Start at (%zu, %zu) — visited %u squares:\n", start_x, start_y, move_count);
+    for (size_t i = 0; i < SIZE; i++) {
+        for (size_t j = 0; j < SIZE; j++) {
+            printf("%3d ", visited[i][j]);
         }
         printf("\n");
     }
+    printf("\n");
+
+    return move_count;
 }
 
-int main(void)
-{
+void greedy_tour_from_each_square() {
+    for (size_t y = 0; y < SIZE; y++) {
+        for (size_t x = 0; x < SIZE; x++) {
+            tour_greedy(x, y);
+        }
+    }
+}
+
+int main() {
     greedy_tour_from_each_square();
     return 0;
 }

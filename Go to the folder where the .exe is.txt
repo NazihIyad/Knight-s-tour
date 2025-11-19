@@ -1,0 +1,6 @@
+Go to the folder where the .exe is:
+cd "C:\Users\nazih\Desktop\Programming C UNI\Knight's tour"
+
+Run the program using the correct filename:
+.\Knights_tour.exe
+
